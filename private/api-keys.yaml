@@ -1,0 +1,11 @@
+tone:
+  endpoint: "url"
+  key: "VOTRE-CLE"
+entity:
+  endpoint: "url"
+  key: "VOTRE-CLE"
+chatgpt:
+  endpoint: "url"
+  key: "VOTRE-CLE"
+
+discord_token: "TOKEN"
