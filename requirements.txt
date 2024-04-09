@@ -1,4 +1,3 @@
 discord
 azure-ai-ml
-azure-ai-formrecognizer
 PyYAML
