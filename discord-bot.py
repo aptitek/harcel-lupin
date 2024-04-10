@@ -31,6 +31,12 @@ lang = None
 # Define a command to change the report channel
 @client.command(name="report")
 async def report_in(ctx, channel):
+    global monitor_mode
+    if monitor_mode == "blacklist":
+      channels.remove(report_channel)
+      channels.add(channel)
+    else:
+      channels.remove(channel)
     report_channel = channel
     #FIXME : Use lang everywhere with format
     await ctx.send(f"Now reporting harassment in {channel}.")
@@ -38,7 +44,7 @@ async def report_in(ctx, channel):
 
 # Define a command to edit monitored channel list
 @client.command(name="monitor")
-async def remove_game_channel(ctx, operation, channel):
+async def monitor(ctx, operation, channel):
     # Check if the game exists
     match operation:
       case "add":
@@ -64,19 +70,28 @@ async def set_monitor_mode(ctx, mode):
     else:
         motitor_mode = mode
         await ctx.send(f"Monitoring is now in {mode} mode")
-            
+    monitor(ctx,"clear","")
+
 # Define a command to move a user to a channel when they launch a game
 @client.event
-async def on_message(member, before, after):
+async def on_ready():
+    channel = client.get_channel(1227522025720119296)
+    await channel.send('EHLO')
+
+
+# Define a command to move a user to a channel when they launch a game
+@client.event
+async def on_message(message):
     # Check if the message is in a monitored channel
     match motitor_mode:
         case "whitelist":
-            if after.channel not in channels:
+            if message.channel not in channels:
                 return
         case "blacklist":
-            if after.channel in channels:
+            if message.channel in channels:
                 return
     #TODO: Code here
+    log.debug(f"Message monitored : {message}.")
 
 
 def main() -> int: # Run the bot

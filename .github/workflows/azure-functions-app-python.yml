@@ -41,6 +41,7 @@ jobs:
         valueFile: 'private/api-keys.yml'
         propertyPath: 'discord_token'
         value: ${{ secrets.DISCORD_TOKEN }}
+        method: Create
         commitChange: false
   
 
