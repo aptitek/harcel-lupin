@@ -1,0 +1,18 @@
+report:
+  channel: "Now reporting harassment in {channel}."
+
+monitor:
+  add: "{channel} is added to the {motitor_mode}."
+  del: "{channel} is removed to the {motitor_mode}."
+  clear: "The {motitor_mode} is cleared."
+  list: "Channels in the {motitor_mode} :{channels}."
+  error: "{operation} is not a valid operation. Try one of add, del, clear, and list."
+
+mode:
+  set: "Monitoring is now in {mode} mode."
+  error: "Mode is either blacklist or whitelist."
+
+keys:
+  error: "Error in keys file:"
+  empty: "private/api-keys.yaml is empty."
+  no_discord: "discord_token not found in private/api-keys.yml"

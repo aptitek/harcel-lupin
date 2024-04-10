@@ -26,6 +26,7 @@ config = None
 @client.command(name="report")
 async def report_in(ctx, channel):
     report_channel = channel
+    #FIXME : Use lang everywhere with format
     await ctx.send(f"Now reporting harassment in {channel}.")
 
 
@@ -69,21 +70,36 @@ async def on_message(member, before, after):
         case "blacklist":
             if after.channel in channels:
                 return
-    #Code here
+    #TODO: Code here
 
 
 def main() -> int:
     # Run the bot
     try:
-        keys = load(sys.file('private/api-keys.yml', 'r'))
+        config = load(sys.file('config.yml', 'r'))
     except exception:
         print("Error in configuration file:" + exception)
+    if config is None:
+        log.fatal("config.yml is empty.")
+
+    try:
+        lang = load(sys.file(f"lang/{config.lang}.yml", 'r'))
+    except exception:
+        print("Error in lang file:" + exception)
+    if lang is None:
+        log.fatal(f"lang/{config.lang}.yml is empty.")
+
+    try:
+        keys = load(sys.file('private/api-keys.yml', 'r'))
+    except exception:
+        print(lang.keys.error + exception)
     if keys is None:
-        log.fatal("private/api-keys.yaml file is invalid")
+        log.fatal(lang.keys.empty)
     if keys.discord_token is None:
-        log.fatal("discord_token key not found in private/api-keys.yaml")
+        log.fatal(lang.keys.no_discord)
+    
+    # Start the bot
     client.run(keys.discord_token)
-    config = load(sys.file('config.yml', 'r'))
     return 0
 
 if __name__ == '__main__':

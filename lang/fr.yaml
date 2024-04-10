@@ -1,0 +1,18 @@
+report:
+  channel: "L'harcèlement est maintenant signalée dans {channel}."
+
+monitor:
+  add: "{channel} est ajouté à la {motitor_mode}."
+  del: "{channel} est enlevé de la {motitor_mode}."
+  clear: "La {motitor_mode} est éfacée."
+  list: "Salons dans la {motitor_mode} :{channels}"
+  error: "{operation} n'est pas une opération valide. Essayer add, del, clear ou list."
+
+mode:
+  set: "La surveillance est maintenant en mode {mode}."
+  error: "Le mode est soit blacklist ou whitelist."
+
+keys:
+  error: "Érreur dans le fichier de clés:"
+  empty: "private/api-keys.yaml est vide."
+  no_discord: "discord_token introuvable dans private/api-keys.yml"
