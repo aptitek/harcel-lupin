@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 from yaml import load, dump
 try:
-    from yaml import CLoader as Loader, CDumper as Dumper
+    from yaml import SafeLoader as Loader, CDumper as Dumper
 except ImportError:
     from yaml import Loader, Dumper
 
@@ -23,8 +23,8 @@ class ADict(dict):
 bot = commands.Bot(command_prefix="/", intents=discord.Intents.all(), case_insensitive=True, self_bot=True)
 
 report_channel = ""
-channels = {}
-motitor_mode = "blacklist"
+channels = set()
+monitor_mode = "blacklist"
 
 config = None
 lang = None
@@ -32,7 +32,8 @@ lang = None
 # Define a command to change the report channel
 @bot.command(name="report")
 async def report_in(ctx, channel):
-    global monitor_mode
+    global report_channel, monitor_mode
+    log.debug(f"report {channel}.")
     if monitor_mode == "blacklist":
       channels.remove(report_channel)
       channels.add(channel)
@@ -46,30 +47,33 @@ async def report_in(ctx, channel):
 # Define a command to edit monitored channel list
 @bot.command(name="monitor")
 async def monitor(ctx, operation, channel):
-    # Check if the game exists
+    # Check if operation is correct and do it.
+    log.debug(f"monitor {operation} {channel}.")
     match operation:
       case "add":
             channels.add(channel)
-            await ctx.send(f"{channel} is added to the {motitor_mode}.")
+            await ctx.send(f"{channel} is added to the {monitor_mode}.")
       case "del":
             channels.remove(channel)
-            await ctx.send(f"{channel} is removed to the {motitor_mode}.")
+            await ctx.send(f"{channel} is removed to the {monitor_mode}.")
       case "clear":
             channels.clear()
-            await ctx.send(f"The {motitor_mode} is cleared.")
+            await ctx.send(f"The {monitor_mode} is cleared.")
       case "list":
-            await ctx.send(f"{motitor_mode} :{channels}")
+            await ctx.send(f"{monitor_mode} :{channels}")
       case _:
             await ctx.send(f"{operation} is not a valid operation. Try add or del")
 
 # Define a command to set the monitor list mode
 @bot.command(name="mode")
 async def set_monitor_mode(ctx, mode):
-    # Check if the game exists
+    # Check if mode exists
+    global monitor_mode
+    log.debug(f"monitor {operation} {channel}.")
     if mode not in ["blacklist", "whitelist"]:
         await ctx.send(f"Mode is either blacklist or whitelist")
     else:
-        motitor_mode = mode
+        monitor_mode = mode
         await ctx.send(f"Monitoring is now in {mode} mode")
     monitor(ctx,"clear","")
 
@@ -78,13 +82,14 @@ async def set_monitor_mode(ctx, mode):
 async def on_ready():
     channel = bot.get_channel(1227522025720119296)
     await channel.send('EHLO')
+    log.debug(f"EHLO")
 
 
 # On each message check if monitored
 @bot.event
 async def on_message(message):
     # Check if the message is in a monitored channel
-    match motitor_mode:
+    match monitor_mode:
         case "whitelist":
             if message.channel not in channels:
                 return
@@ -99,7 +104,7 @@ def main() -> int: # Run the bot
     global config, lang, keys
 
     try:
-        config = load(open('config.yml', 'r'))
+        config = load(open('config.yml', 'r'), Loader=Loader)
     except Exception:
         log.fatal("Error in configuration file !")
     if config is None:
@@ -107,7 +112,7 @@ def main() -> int: # Run the bot
     config = ADict(config)
 
     try:
-        lang = load(open(f"lang/{config['lang']}.yml", 'r'))
+        lang = load(open(f"lang/{config['lang']}.yml", 'r'), Loader=Loader)
     except Exception:
         log.fatal("Error in lang file !")
     if lang is None:
@@ -115,7 +120,7 @@ def main() -> int: # Run the bot
     lang = ADict(lang)
 
     try:
-        keys = load(open('private/api-keys.yml', 'r'))
+        keys = load(open('private/api-keys.yml', 'r'), Loader=Loader)
     except Exception:
         log.fatal(lang.keys.error)
     if keys is None:
