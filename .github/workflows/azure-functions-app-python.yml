@@ -38,7 +38,7 @@ jobs:
     - name: YAML Update Action
       uses: fjogeleit/yaml-update-action@v0.14.0
       with:
-        valueFile: 'private/api-keys.yaml'
+        valueFile: 'private/api-keys.yml'
         propertyPath: 'discord_token'
         value: ${{ secrets.DISCORD_TOKEN }}
         commitChange: false

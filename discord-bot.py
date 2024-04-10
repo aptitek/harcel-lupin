@@ -14,6 +14,11 @@ logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
+class ADict(dict):
+    def __init__(self, *args, **kwargs):
+        super(ADict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
 client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), case_insensitive=True, self_bot=True)
 
 report_channel = ""
@@ -21,6 +26,7 @@ channels = {}
 motitor_mode = "blacklist"
 
 config = None
+lang = None
 
 # Define a command to change the report channel
 @client.command(name="report")
@@ -73,28 +79,33 @@ async def on_message(member, before, after):
     #TODO: Code here
 
 
-def main() -> int:
-    # Run the bot
+def main() -> int: # Run the bot
+    global config, lang, keys
+
     try:
-        config = load(sys.file('config.yml', 'r'))
-    except exception:
-        print("Error in configuration file:" + exception)
+        config = load(open('config.yml', 'r'))
+    except Exception:
+        log.fatal("Error in configuration file !")
     if config is None:
         log.fatal("config.yml is empty.")
+    config = ADict(config)
 
     try:
-        lang = load(sys.file(f"lang/{config.lang}.yml", 'r'))
-    except exception:
-        print("Error in lang file:" + exception)
+        lang = load(open(f"lang/{config['lang']}.yml", 'r'))
+    except Exception:
+        log.fatal("Error in lang file !")
     if lang is None:
         log.fatal(f"lang/{config.lang}.yml is empty.")
+    lang = ADict(lang)
 
     try:
-        keys = load(sys.file('private/api-keys.yml', 'r'))
-    except exception:
-        print(lang.keys.error + exception)
+        keys = load(open('private/api-keys.yml', 'r'))
+    except Exception:
+        log.fatal(lang.keys.error)
     if keys is None:
         log.fatal(lang.keys.empty)
+    keys = ADict(keys)
+
     if keys.discord_token is None:
         log.fatal(lang.keys.no_discord)
     
@@ -103,4 +114,4 @@ def main() -> int:
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main())  # next section explains the use of sys.exit
+    sys.exit(main())
