@@ -10,7 +10,8 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(filename="logs.txt",
+                    filemode='a', level=logging.DEBUG)
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
@@ -19,7 +20,7 @@ class ADict(dict):
         super(ADict, self).__init__(*args, **kwargs)
         self.__dict__ = self
 
-client = commands.Bot(command_prefix="/", intents=discord.Intents.all(), case_insensitive=True, self_bot=True)
+bot = commands.Bot(command_prefix="/", intents=discord.Intents.all(), case_insensitive=True, self_bot=True)
 
 report_channel = ""
 channels = {}
@@ -29,7 +30,7 @@ config = None
 lang = None
 
 # Define a command to change the report channel
-@client.command(name="report")
+@bot.command(name="report")
 async def report_in(ctx, channel):
     global monitor_mode
     if monitor_mode == "blacklist":
@@ -43,7 +44,7 @@ async def report_in(ctx, channel):
 
 
 # Define a command to edit monitored channel list
-@client.command(name="monitor")
+@bot.command(name="monitor")
 async def monitor(ctx, operation, channel):
     # Check if the game exists
     match operation:
@@ -62,7 +63,7 @@ async def monitor(ctx, operation, channel):
             await ctx.send(f"{operation} is not a valid operation. Try add or del")
 
 # Define a command to set the monitor list mode
-@client.command(name="mode")
+@bot.command(name="mode")
 async def set_monitor_mode(ctx, mode):
     # Check if the game exists
     if mode not in ["blacklist", "whitelist"]:
@@ -72,15 +73,15 @@ async def set_monitor_mode(ctx, mode):
         await ctx.send(f"Monitoring is now in {mode} mode")
     monitor(ctx,"clear","")
 
-# Define a command to move a user to a channel when they launch a game
-@client.event
+# Says ehlo
+@bot.event
 async def on_ready():
-    channel = client.get_channel(1227522025720119296)
+    channel = bot.get_channel(1227522025720119296)
     await channel.send('EHLO')
 
 
-# Define a command to move a user to a channel when they launch a game
-@client.event
+# On each message check if monitored
+@bot.event
 async def on_message(message):
     # Check if the message is in a monitored channel
     match motitor_mode:
@@ -125,7 +126,7 @@ def main() -> int: # Run the bot
         log.fatal(lang.keys.no_discord)
     
     # Start the bot
-    client.run(keys.discord_token)
+    bot.run(keys.discord_token)
     return 0
 
 if __name__ == '__main__':
