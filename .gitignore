@@ -1,2 +1,3 @@
-private/*
+private/*.*
 .venv
+private/api-keys.yml
