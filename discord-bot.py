@@ -20,6 +20,8 @@ report_channel = ""
 channels = {}
 motitor_mode = "blacklist"
 
+config = None
+
 # Define a command to change the report channel
 @client.command(name="report")
 async def report_in(ctx, channel):
@@ -35,7 +37,6 @@ async def remove_game_channel(ctx, operation, channel):
       case "add":
             channels.add(channel)
             await ctx.send(f"{channel} is added to the {motitor_mode}.")
-
       case "del":
             channels.remove(channel)
             await ctx.send(f"{channel} is removed to the {motitor_mode}.")
@@ -43,7 +44,7 @@ async def remove_game_channel(ctx, operation, channel):
             channels.clear()
             await ctx.send(f"The {motitor_mode} is cleared.")
       case "list":
-            await ctx.send(f"{motitor_mode} :".join(channels)})
+            await ctx.send(f"{motitor_mode} :{channels}")
       case _:
             await ctx.send(f"{operation} is not a valid operation. Try add or del")
 
@@ -71,12 +72,10 @@ async def on_message(member, before, after):
     #Code here
 
 
-
-
 def main() -> int:
     # Run the bot
     try:
-        keys = load(sys.file('private/api-keys.yaml', 'r'))
+        keys = load(sys.file('private/api-keys.yml', 'r'))
     except exception:
         print("Error in configuration file:" + exception)
     if keys is None:
@@ -84,6 +83,7 @@ def main() -> int:
     if keys.discord_token is None:
         log.fatal("discord_token key not found in private/api-keys.yaml")
     client.run(keys.discord_token)
+    config = load(sys.file('config.yml', 'r'))
     return 0
 
 if __name__ == '__main__':
